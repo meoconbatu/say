@@ -1,5 +1,7 @@
 package say
 
+import "strings"
+
 const testVersion = 1
 
 var tensNames = []string{
@@ -47,44 +49,34 @@ var spellOuts = []struct {
 	{1000000000, "billion"},
 	{1000000, "million"},
 	{1000, "thousand"},
-	//	{100, "hundred"},
+	{1, ""},
 }
 
 func Say(number uint64) (output string) {
-	var b uint64
-	if number < 20 {
-		return numNames[number]
+	if number == 0 {
+		return numNames[0]
 	}
 	for _, s := range spellOuts {
 		a := number / s.uint64
-		b = number % s.uint64
 		if a > 0 {
-			if output != "" {
-				output = output + " "
-			}
-			output = output + Say100(int(a)) + " " + s.string
+			output += " " + Say100(int(a)) + " " + s.string
 			number = number % s.uint64
 		}
 	}
-	if b > 0 {
-		if output != "" {
-			output = output + " "
-		}
-		output = output + Say100(int(b))
-
-	}
-	return
+	return strings.Trim(output, " ")
 }
 func Say100(number int) (output string) {
-	a := int(number) / 100
+	a := number / 100
 	if a > 0 {
 		output = numNames[a] + " hundred"
 	}
-	if b := int(number) - 100*a; b > 0 {
+	if b := number % 100; b > 0 {
 		if output != "" {
 			output = output + " "
 		}
-		output = output + SayBasicCase(b)
+		output += SayBasicCase(b)
+	} else if output == "" && b == 0 {
+		output += SayBasicCase(b)
 	}
 	return
 }
@@ -93,7 +85,7 @@ func SayBasicCase(number int) (output string) {
 		return numNames[number]
 	}
 	a := number / 10
-	b := number - a*10
+	b := number % 10
 	output = tensNames[a]
 	if b > 0 {
 		output = output + "-" + numNames[b]
